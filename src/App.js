@@ -5,6 +5,11 @@ import {Home, Cart} from './pages';
 
 
 function App() {
+
+  React.useEffect(() => {
+
+  },[])
+
   return (
     <div className="App">
           <div className="wrapper">
