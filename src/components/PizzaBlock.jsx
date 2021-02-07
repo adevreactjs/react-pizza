@@ -1,27 +1,56 @@
 import React from 'react'
+import classNames from 'classnames'
+import PropTypes from 'prop-types';
 
-const PizzaBlock = () => {
+const PizzaBlock = ({name, price, imageUrl, sizes, types }) => {
+
+  const typeName = ['тонкое', 'традиционное']
+  const [activeType, setType] = React.useState(types[0])
+  const [activeSize, setSize] = React.useState(sizes[0])
+
+
+  const setActivePizza = (index) => {
+    setType(index)
+  }
+
+  const setActiveSize = (index) => {
+    setSize(index)
+  }
+
     return (
     <div className="pizza-block">
 <img
   className="pizza-block__image"
-  src="https://dodopizza-a.akamaihd.net/static/Img/Products/Pizza/ru-RU/b750f576-4a83-48e6-a283-5a8efb68c35d.jpg"
+  src={imageUrl}
   alt="Pizza"
 />
-<h4 className="pizza-block__title">Чизбургер-пицца</h4>
+<h4 className="pizza-block__title">{name}</h4>
 <div className="pizza-block__selector">
   <ul>
-    <li className="active">тонкое</li>
-    <li>традиционное</li>
+    {typeName.map((nameType, index) => {
+      return (
+        <li key={index} onClick={() => setActivePizza(index)} 
+        className={classNames({
+          active: activeType === index,
+          disabled: !types.includes(index)
+        })}>{nameType}</li>
+      )
+    })}
   </ul>
   <ul>
-    <li className="active">26 см.</li>
-    <li>30 см.</li>
-    <li>40 см.</li>
+    {sizes.map((size, index) => (
+      <li key={index} 
+      onClick={() => setActiveSize(index) } 
+      className={classNames({
+        active: activeSize === index,
+        disabled: !sizes.includes(size)
+      })} >{size} см.</li>
+    )
+     )}
   </ul>
 </div>
 <div className="pizza-block__bottom">
-  <div className="pizza-block__price">от 395 ₽</div>
+  <div className="pizza-block__price">от {price} ₽</div>
   <div className="button button--outline button--add">
     <svg
       width="12"
@@ -41,6 +70,10 @@ const PizzaBlock = () => {
 </div>
 </div>
     )
+}
+
+PizzaBlock.propTypes = {
+  name: PropTypes.string,
 }
 
 export default PizzaBlock
