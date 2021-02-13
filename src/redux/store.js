@@ -1,19 +1,10 @@
-import { createStore } from 'redux'
+import { createStore, compose, applyMiddleware } from 'redux'
+import rootReducer from './reducers'
+import thunk from 'redux-thunk'
 
-function counterReducer(state = { value: 0 }, action) {
-    switch (action.type) {
-      case 'counter/incremented':
-        return { value: state.value + 1 }
-      case 'counter/decremented':
-        return { value: state.value - 1 }
-      default:
-        return state
-    }
-  }
-  
-  // Create a Redux store holding the state of your app.
-  // Its API is { subscribe, dispatch, getState }.
-  let store = createStore(counterReducer)
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-  export default store
+let store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)) )
+
+export default store
   
