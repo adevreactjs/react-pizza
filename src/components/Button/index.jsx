@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-const Button = ({ onClick, className, outline, children }) => {
+import './Button.scss';
+
+const Button = ({ children, className, outline, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -16,6 +18,8 @@ const Button = ({ onClick, className, outline, children }) => {
 
 Button.propTypes = {
   onClick: PropTypes.func,
+  className: PropTypes.string,
+  outline: PropTypes.bool,
 };
 
 export default Button;

@@ -1,76 +1,65 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import classNames from 'classnames';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Categories, SortPopup, PizzaBlock, PizzaLoadingBlock } from '../components';
+import { PizzaBlock, Categories, SortPopup } from '../components';
+import { pizzasActions, cartActions, filtersActions } from '../redux/actions';
 
-import { setCategory, setSortBy } from '../redux/actions/filters';
-import { fetchPizzas } from '../redux/actions/pizzas';
-import { addPizzaToCart } from '../redux/actions/cart';
-
-const categoryNames = ['Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые'];
-const sortIems = [
-  { name: 'популярности', type: 'popular', order: 'desc' },
-  { name: 'цене', type: 'price', order: 'desc' },
-  { name: 'алфавит', type: 'name', order: 'asc' },
-];
-
-function Home() {
+function App() {
   const dispatch = useDispatch();
-  const items = useSelector(({ pizzas }) => pizzas.items);
-  const cartItems = useSelector(({ cart }) => cart.items);
-  const isLoaded = useSelector(({ pizzas }) => pizzas.isLoaded);
-  const { category, sortBy } = useSelector(({ filters }) => filters);
+  const [pizzas, isLoading, cartItems, filters] = useSelector(state => [
+    state.pizzas.items,
+    state.pizzas.isLoading,
+    state.cart.items,
+    state.filters,
+  ]);
+
+  const addToCart = React.useCallback(obj => dispatch(cartActions.addToCart(obj)), [dispatch]);
+  const selectSort = React.useCallback(obj => dispatch(filtersActions.setSortBy(obj.value)), [
+    dispatch,
+  ]);
+  const selectCategory = React.useCallback(
+    index => {
+      dispatch(filtersActions.setCategory(index));
+    },
+    [dispatch],
+  );
 
   React.useEffect(() => {
-    dispatch(fetchPizzas(sortBy, category));
-  }, [category, sortBy]);
+    dispatch(pizzasActions.fetchItems(filters));
+  }, [dispatch, filters]);
 
-  const onSelectCategory = React.useCallback((index) => {
-    dispatch(setCategory(index));
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
   }, []);
-
-  const onSelectSortType = React.useCallback((type) => {
-    dispatch(setSortBy(type));
-  }, []);
-
-  const handleAddPizzaToCart = (obj) => {
-    dispatch({
-      type: 'ADD_PIZZA_CART',
-      payload: obj,
-    });
-  };
 
   return (
-    <div className="container">
-      <div className="content__top">
+    <React.Fragment>
+      <div className={classNames('content__top', { noclick: isLoading })}>
         <Categories
-          activeCategory={category}
-          onClickCategory={onSelectCategory}
-          items={categoryNames}
+          activeItem={filters.category}
+          items={['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые']}
+          onClick={selectCategory}
         />
-        <SortPopup
-          activeSortType={sortBy.type}
-          items={sortIems}
-          onClickSortType={onSelectSortType}
-        />
+        <SortPopup sortBy={filters.sortBy} onSelect={selectSort} />
       </div>
       <h2 className="content__title">Все пиццы</h2>
+      {console.log(isLoading)}
       <div className="content__items">
-        {isLoaded
-          ? items.map((obj) => (
+        {pizzas && !isLoading
+          ? pizzas.map(item => (
               <PizzaBlock
-                onClickAddPizza={handleAddPizzaToCart}
-                key={obj.id}
-                addedCount={cartItems[obj.id] && cartItems[obj.id].items.length}
-                {...obj}
+                key={item.id}
+                {...item}
+                onAdd={addToCart}
+                cartItems={cartItems}
+                isLoading={isLoading}
               />
             ))
-          : Array(12)
-              .fill(0)
-              .map((_, index) => <PizzaLoadingBlock key={index} />)}
+          : [...Array(8)].map((_, index) => <PizzaBlock key={index} isLoading={isLoading} />)}
       </div>
-    </div>
+    </React.Fragment>
   );
 }
 
-export default Home;
+export default App;
